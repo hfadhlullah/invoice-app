@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Invoices collection rules
+    match /invoices/{document} {
+      // Allow read and write access to all users (you may want to restrict this based on authentication)
+      allow read, write: if true;
+      
+      // If you want to implement authentication later, use:
+      // allow read, write: if request.auth != null;
+      
+      // More restrictive rules for production:
+      // allow read: if request.auth != null;
+      // allow create: if request.auth != null && request.auth.uid == resource.data.userId;
+      // allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+  }
+}

@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Remove all shadows and backgrounds when printing */
+  * {
+    header: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+  }
+  
+  /* Make print container fill the page properly */
+  .print-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    min-height: 100vh !important;
+  }
+  
+  .invoice-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    page-break-after: avoid;
+  }
+}
