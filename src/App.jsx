@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import InvoiceFormModern from './components/InvoiceFormModern';
 import InvoicePreview from './components/InvoicePreview';
 import InvoiceList from './components/InvoiceList';
-import FirebaseDebug from './components/FirebaseDebug';
 import { validateInvoiceData } from './utils/validation';
 import { getLastInvoiceNumber, getAllInvoices } from './utils/invoiceStorage';
 import { InvoiceService } from './firebase/invoiceService';
@@ -357,8 +356,6 @@ function App() {
         }
       `}</style>
 
-      {/* Firebase Debug Component */}
-      <FirebaseDebug />
     </div>
   );
 }
