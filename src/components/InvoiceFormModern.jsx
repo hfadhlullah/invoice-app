@@ -18,7 +18,7 @@ const InputField = ({ label, name, type = 'text', placeholder, required, touched
       onChange={handleChange}
       onBlur={() => handleBlur(name)}
       placeholder={placeholder}
-      className={`w-full px-3 py-2.5 rounded-lg border transition-all focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+      className={`w-full px-3 py-2.5 rounded-lg border transition-all focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base ${
         touched[name] && hasFieldError(validationErrors, name)
           ? 'border-red-300 bg-red-50'
           : 'border-gray-300 hover:border-gray-400'
@@ -38,9 +38,9 @@ const Card = ({ title, children, section, toggleSection, expanded }) => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
     <button
       onClick={() => toggleSection(section)}
-      className="w-full px-6 py-4 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-colors"
+      className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 transition-colors"
     >
-      <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+      <h2 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
         {title}
       </h2>
       <svg
@@ -53,7 +53,7 @@ const Card = ({ title, children, section, toggleSection, expanded }) => (
       </svg>
     </button>
     {expanded && (
-      <div className="p-6 space-y-4 animate-fadeIn">
+      <div className="p-4 sm:p-6 space-y-4 animate-fadeIn">
         {children}
       </div>
     )}
@@ -138,7 +138,7 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
           handleBlur={handleBlur}
         />
         
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Logo Upload */}
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-gray-700">Company Logo</label>
@@ -152,13 +152,13 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
               />
               <label
                 htmlFor="logo-upload"
-                className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all"
+                className="flex flex-col items-center justify-center w-full h-20 sm:h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all"
               >
                 {invoiceData?.logoUrl ? (
                   <img src={invoiceData.logoUrl} alt="Logo" className="h-full object-contain p-2" />
                 ) : (
                   <>
-                    <span className="text-2xl">📷</span>
+                    <span className="text-xl sm:text-2xl">📷</span>
                     <span className="text-xs text-gray-500 mt-1">Upload Logo</span>
                   </>
                 )}
@@ -179,13 +179,13 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
               />
               <label
                 htmlFor="cert-upload"
-                className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all"
+                className="flex flex-col items-center justify-center w-full h-20 sm:h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all"
               >
                 {invoiceData?.certUrl ? (
                   <img src={invoiceData.certUrl} alt="Certificate" className="h-full object-contain p-2" />
                 ) : (
                   <>
-                    <span className="text-2xl">🏆</span>
+                    <span className="text-xl sm:text-2xl">🏆</span>
                     <span className="text-xs text-gray-500 mt-1">Upload Cert</span>
                   </>
                 )}
@@ -265,7 +265,7 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
           handleBlur={handleBlur}
         />
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-gray-700">
               Date <span className="text-red-500 ml-1">*</span>
@@ -277,7 +277,7 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
                 value={invoiceData?.date || ''}
                 onChange={handleChange}
                 onBlur={() => handleBlur('date')}
-                className={`flex-1 px-3 py-2.5 rounded-lg border transition-all focus:ring-2 focus:ring-blue-500 ${
+                className={`flex-1 px-3 py-2.5 rounded-lg border transition-all focus:ring-2 focus:ring-blue-500 text-base ${
                   touched.date && hasFieldError(validationErrors, 'date')
                     ? 'border-red-300 bg-red-50'
                     : 'border-gray-300'
@@ -286,10 +286,11 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
               <button
                 type="button"
                 onClick={handleTodayClick}
-                className="px-3 py-2.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-all text-sm font-medium"
+                className="px-2 sm:px-3 py-2.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-all text-xs sm:text-sm font-medium"
                 title="Set to today"
               >
-                Today
+                <span className="hidden sm:inline">Today</span>
+                <span className="sm:hidden">📅</span>
               </button>
             </div>
             {touched.date && getFieldError(validationErrors, 'date') && (
@@ -303,7 +304,7 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
               name="dateFormat"
               value={invoiceData?.dateFormat || 'id'}
               onChange={handleChange}
-              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all"
+              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all text-base"
             >
               <option value="id">🇮🇩 Indonesian</option>
               <option value="us">🇺🇸 US Format</option>
@@ -328,7 +329,7 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
 
       {/* Amount & Payment */}
       <Card title="💰 Amount & Payment" section="amount" toggleSection={toggleSection} expanded={expandedSections.amount}>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-gray-700">
               Currency <span className="text-red-500 ml-1">*</span>
@@ -337,7 +338,7 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
               name="currency"
               value={invoiceData?.currency || 'Rp'}
               onChange={handleCurrencyChange}
-              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all"
+              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all text-base"
             >
               <option value="Rp">🇮🇩 Rp (Rupiah)</option>
               <option value="IDR">🇮🇩 IDR</option>
@@ -426,7 +427,7 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
             onChange={handleChange}
             rows="3"
             placeholder="Bank transfer details, payment terms, etc."
-            className="w-full px-3 py-2.5 rounded-lg border border-gray-300 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+            className="w-full px-3 py-2.5 rounded-lg border border-gray-300 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none text-base"
           />
         </div>
       </Card>
