@@ -531,7 +531,7 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
           handleBlur={handleBlur}
         />
 
-        <div className="space-y-1.5">
+        {/* <div className="space-y-1.5">
           <label className="block text-sm font-medium text-gray-700">Payment Instructions</label>
           <textarea
             name="paymentInstructions"
@@ -541,7 +541,7 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
             placeholder="Bank transfer details, payment terms, etc."
               className="w-full px-3 py-2.5 rounded-lg border border-gray-300 hover:border-gray-400 focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all resize-none text-base"
           />
-        </div>
+        </div> */}
       </Card>
     </div>
   );

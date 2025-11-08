@@ -16,14 +16,16 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Debug logging for production
-console.log('🔥 Firebase Config Check:', {
-  hasApiKey: !!firebaseConfig.apiKey,
-  hasAuthDomain: !!firebaseConfig.authDomain,
-  hasProjectId: !!firebaseConfig.projectId,
-  projectId: firebaseConfig.projectId,
-  environment: import.meta.env.MODE
-});
+// Debug logging only in development
+if (import.meta.env.DEV) {
+  console.log('🔥 Firebase Config Check:', {
+    hasApiKey: !!firebaseConfig.apiKey,
+    hasAuthDomain: !!firebaseConfig.authDomain,
+    hasProjectId: !!firebaseConfig.projectId,
+    projectId: firebaseConfig.projectId,
+    environment: import.meta.env.MODE
+  });
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
