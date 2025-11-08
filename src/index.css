@@ -209,5 +209,43 @@
     box-shadow: none !important;
     page-break-after: avoid;
   }
+
+  /* --- Stronger overrides to prevent mobile browsers from clipping scrollable areas --- */
+  /* Ensure any element that uses overflow or min-height expands in print */
+  [class*="overflow"], .h-full, [class*="min-h-"], .custom-scrollbar {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Make sticky/fixed elements static to avoid overlapping/clipping in print */
+  .sticky, .fixed, [class*="sticky"], [class*="fixed"] {
+    position: static !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+  }
+
+  /* Ensure html/body/root do not constrain printing area */
+  html, body, #root {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Remove transforms which may create new stacking contexts and cause clipping */
+  * {
+    -webkit-transform: none !important;
+    transform: none !important;
+    -webkit-overflow-scrolling: auto !important; /* disable momentum scrolling in print */
+  }
+
+  /* Avoid page-breaks inside invoice block where possible */
+  .invoice-page {
+    page-break-inside: avoid !important;
+    -webkit-column-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
 }
 
