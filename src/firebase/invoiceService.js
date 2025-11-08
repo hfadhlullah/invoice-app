@@ -8,8 +8,7 @@ import {
   updateDoc, 
   deleteDoc, 
   query, 
-  orderBy, 
-  where 
+  orderBy
 } from 'firebase/firestore';
 import { db } from './config.js';
 
@@ -94,17 +93,27 @@ export class InvoiceService {
   // Search invoices
   static async searchInvoices(searchTerm) {
     try {
-      const q = query(
-        collection(db, COLLECTION_NAME),
-        where('clientName', '>=', searchTerm),
-        where('clientName', '<=', searchTerm + '\uf8ff'),
-        orderBy('clientName')
-      );
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const term = (searchTerm || '').trim().toLowerCase();
+      if (!term) return [];
+
+      // For substring matching on names (e.g., searching "oe" in "John Doe") Firestore
+      // doesn't support arbitrary contains queries. For small datasets we fetch all
+      // invoices and filter client-side. This keeps matching flexible (substring,
+      // case-insensitive) and also supports prefix matching for invoice numbers.
+      const allInvoices = await this.getAllInvoices();
+
+      const filtered = allInvoices.filter(inv => {
+        const invoiceNumber = (inv.invoiceNumber || '').toString().toLowerCase();
+        if (invoiceNumber.startsWith(term)) return true; // prefix match for numbers
+
+        const nameFields = [inv.customerName, inv.clientName, inv.invoiceTo]
+          .filter(Boolean)
+          .map(s => s.toString().toLowerCase());
+
+        return nameFields.some(name => name.includes(term)); // substring match
+      });
+
+      return filtered;
     } catch (error) {
       console.error('Error searching invoices:', error);
       throw error;

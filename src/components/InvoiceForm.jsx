@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { numberToWordsID, formatNumber, unformatNumber } from '../utils/numberToWords';
 import { getTodayDate } from '../utils/dateFormatter';
 import { generateNextInvoiceNumber } from '../utils/invoiceNumber';
@@ -62,12 +62,20 @@ const Card = ({ title, children, section, toggleSection, expanded }) => (
 
 function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
   const [touched, setTouched] = useState({});
+  // Only the first section (invoice) should be open when the form first mounts
   const [expandedSections, setExpandedSections] = useState({
-    company: true,
+    company: false,
     invoice: true,
-    amount: true,
-    additional: true
+    amount: false,
+    additional: false
   });
+
+  // When a different invoice is opened (invoiceNumber changes), reset sections so
+  // only the first section is expanded. This keeps behavior consistent when
+  // switching between invoices or opening the app.
+  useEffect(() => {
+    setExpandedSections({ company: false, invoice: true, amount: false, additional: false });
+  }, [invoiceData?.invoiceNumber]);
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -124,8 +132,140 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
 
   return (
     <div className="space-y-4">
+{/* Invoice Details */}
+      <Card
+        title={
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6M9 16h6M9 8h6M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Invoice Details</span>
+          </div>
+        }
+        section="invoice"
+        toggleSection={toggleSection}
+        expanded={expandedSections.invoice}
+      >
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <InputField 
+              label="Invoice Number" 
+              name="invoiceNumber" 
+              required 
+              placeholder="INV-001"
+              touched={touched}
+              validationErrors={validationErrors}
+              invoiceData={invoiceData}
+              handleChange={handleChange}
+              handleBlur={handleBlur}
+            />
+          </div>
+            <button
+              onClick={handleGenerateInvoiceNumber}
+              className="mt-[30px] px-4 py-2.5 bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700 text-white rounded-lg transition-all shadow-sm hover:shadow font-medium inline-flex items-center gap-2"
+              title="Generate next invoice number"
+              aria-label="Generate next invoice number"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v6h6M20 20v-6h-6" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 19a9 9 0 101-17" />
+              </svg>
+              <span>Next</span>
+            </button>
+        </div>
+
+        <InputField 
+          label="Customer Name" 
+          name="customerName" 
+          required 
+          placeholder="Customer or client name"
+          touched={touched}
+          validationErrors={validationErrors}
+          invoiceData={invoiceData}
+          handleChange={handleChange}
+          handleBlur={handleBlur}
+        />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-gray-700">
+              Date <span className="text-red-500 ml-1">*</span>
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                name="date"
+                value={invoiceData?.date || ''}
+                onChange={handleChange}
+                onBlur={() => handleBlur('date')}
+                  className={`flex-1 px-3 py-2.5 rounded-lg border transition-all focus:ring-2 focus:ring-slate-500 text-base ${
+                  touched.date && hasFieldError(validationErrors, 'date')
+                    ? 'border-red-300 bg-red-50'
+                    : 'border-gray-300'
+                }`}
+              />
+              <button
+                type="button"
+                onClick={handleTodayClick}
+                className="px-2 sm:px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all text-xs sm:text-sm font-medium inline-flex items-center gap-2"
+                title="Set to today"
+                aria-label="Set date to today"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="hidden sm:inline">Today</span>
+              </button>
+            </div>
+            {touched.date && getFieldError(validationErrors, 'date') && (
+              <p className="text-xs text-red-600 mt-1">⚠ {getFieldError(validationErrors, 'date')}</p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-gray-700">Date Format</label>
+              <select
+              name="dateFormat"
+              value={invoiceData?.dateFormat || 'id'}
+              onChange={handleChange}
+              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all text-base"
+            >
+              <option value="id">Indonesian</option>
+              <option value="us">US Format</option>
+              <option value="eu">EU Format</option>
+              <option value="iso">ISO Format</option>
+            </select>
+          </div>
+        </div>
+
+        <InputField 
+          label="Location" 
+          name="location" 
+          required 
+          placeholder="City or location"
+          touched={touched}
+          validationErrors={validationErrors}
+          invoiceData={invoiceData}
+          handleChange={handleChange}
+          handleBlur={handleBlur}
+        />
+      </Card>
+
       {/* Company Branding */}
-      <Card title="🏢 Company Information" section="company" toggleSection={toggleSection} expanded={expandedSections.company}>
+      <Card
+        title={
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21h18M9 21V9a2 2 0 012-2h2a2 2 0 012 2v12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6M9 11h6" />
+            </svg>
+            <span>Company Information</span>
+          </div>
+        }
+        section="company"
+        toggleSection={toggleSection}
+        expanded={expandedSections.company}
+      >
         <InputField 
           label="Company Name" 
           name="companyName" 
@@ -150,19 +290,42 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
                 className="hidden"
                 id="logo-upload"
               />
-              <label
-                htmlFor="logo-upload"
-                className="flex flex-col items-center justify-center w-full h-20 sm:h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all"
-              >
-                {invoiceData?.logoUrl ? (
-                  <img src={invoiceData.logoUrl} alt="Logo" className="h-full object-contain p-2" />
-                ) : (
-                  <>
-                    <span className="text-xl sm:text-2xl">📷</span>
-                    <span className="text-xs text-gray-500 mt-1">Upload Logo</span>
-                  </>
-                )}
-              </label>
+              {invoiceData?.logoUrl ? (
+                <div className="w-full h-20 sm:h-24 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden relative bg-white">
+                  <img src={invoiceData.logoUrl} alt="Logo" className="w-full h-full object-contain p-2 bg-white" />
+                  <div className="absolute inset-0 flex items-start justify-end p-2">
+                    <div className="flex gap-2 pointer-events-auto">
+                      <label htmlFor="logo-upload" className="inline-flex items-center gap-2 px-2 py-1 bg-slate-700 text-white rounded text-xs hover:bg-slate-800 cursor-pointer">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v6h6M20 20v-6h-6" />
+                        </svg>
+                        Replace
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => onChange({ ...invoiceData, logoUrl: '' })}
+                        className="inline-flex items-center gap-2 px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
+                        aria-label="Remove logo"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <label
+                  htmlFor="logo-upload"
+                  className="flex flex-col items-center justify-center w-full h-20 sm:h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-slate-400 hover:bg-slate-50 transition-all"
+                >
+                  <svg className="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M8 7V4m8 3V4M16 11l-4-4-4 4M8 21h8" />
+                  </svg>
+                  <span className="text-xs text-gray-500 mt-1">Upload Logo</span>
+                </label>
+              )}
             </div>
           </div>
 
@@ -177,19 +340,42 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
                 className="hidden"
                 id="cert-upload"
               />
-              <label
-                htmlFor="cert-upload"
-                className="flex flex-col items-center justify-center w-full h-20 sm:h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all"
-              >
-                {invoiceData?.certUrl ? (
-                  <img src={invoiceData.certUrl} alt="Certificate" className="h-full object-contain p-2" />
-                ) : (
-                  <>
-                    <span className="text-xl sm:text-2xl">🏆</span>
-                    <span className="text-xs text-gray-500 mt-1">Upload Cert</span>
-                  </>
-                )}
-              </label>
+              {invoiceData?.certUrl ? (
+                <div className="w-full h-20 sm:h-24 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden relative bg-white">
+                  <img src={invoiceData.certUrl} alt="Certificate" className="w-full h-full object-contain p-2 bg-white" />
+                  <div className="absolute inset-0 flex items-start justify-end p-2">
+                    <div className="flex gap-2">
+                      <label htmlFor="cert-upload" className="inline-flex items-center gap-2 px-2 py-1 bg-slate-700 text-white rounded text-xs hover:bg-slate-800 cursor-pointer">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v6h6M20 20v-6h-6" />
+                        </svg>
+                        Replace
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => onChange({ ...invoiceData, certUrl: '' })}
+                        className="inline-flex items-center gap-2 px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
+                        aria-label="Remove certificate"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <label
+                  htmlFor="cert-upload"
+                  className="flex flex-col items-center justify-center w-full h-20 sm:h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-slate-400 hover:bg-slate-50 transition-all"
+                >
+                  <svg className="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7 7h10v6a4 4 0 01-4 4H9a4 4 0 01-4-4V7z" />
+                  </svg>
+                  <span className="text-xs text-gray-500 mt-1">Upload Cert</span>
+                </label>
+              )}
             </div>
           </div>
         </div>
@@ -228,107 +414,21 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
         />
       </Card>
 
-      {/* Invoice Details */}
-      <Card title="📋 Invoice Details" section="invoice" toggleSection={toggleSection} expanded={expandedSections.invoice}>
-        <div className="flex gap-2">
-          <div className="flex-1">
-            <InputField 
-              label="Invoice Number" 
-              name="invoiceNumber" 
-              required 
-              placeholder="INV-001"
-              touched={touched}
-              validationErrors={validationErrors}
-              invoiceData={invoiceData}
-              handleChange={handleChange}
-              handleBlur={handleBlur}
-            />
-          </div>
-          <button
-            onClick={handleGenerateInvoiceNumber}
-            className="mt-[30px] px-4 py-2.5 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-lg transition-all shadow-sm hover:shadow font-medium"
-            title="Generate next invoice number"
-          >
-            🔄 Next
-          </button>
-        </div>
-
-        <InputField 
-          label="Customer Name" 
-          name="customerName" 
-          required 
-          placeholder="Customer or client name"
-          touched={touched}
-          validationErrors={validationErrors}
-          invoiceData={invoiceData}
-          handleChange={handleChange}
-          handleBlur={handleBlur}
-        />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-gray-700">
-              Date <span className="text-red-500 ml-1">*</span>
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="date"
-                name="date"
-                value={invoiceData?.date || ''}
-                onChange={handleChange}
-                onBlur={() => handleBlur('date')}
-                className={`flex-1 px-3 py-2.5 rounded-lg border transition-all focus:ring-2 focus:ring-blue-500 text-base ${
-                  touched.date && hasFieldError(validationErrors, 'date')
-                    ? 'border-red-300 bg-red-50'
-                    : 'border-gray-300'
-                }`}
-              />
-              <button
-                type="button"
-                onClick={handleTodayClick}
-                className="px-2 sm:px-3 py-2.5 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition-all text-xs sm:text-sm font-medium"
-                title="Set to today"
-              >
-                <span className="hidden sm:inline">Today</span>
-                <span className="sm:hidden">📅</span>
-              </button>
-            </div>
-            {touched.date && getFieldError(validationErrors, 'date') && (
-              <p className="text-xs text-red-600 mt-1">⚠ {getFieldError(validationErrors, 'date')}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-gray-700">Date Format</label>
-            <select
-              name="dateFormat"
-              value={invoiceData?.dateFormat || 'id'}
-              onChange={handleChange}
-              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all text-base"
-            >
-              <option value="id">🇮🇩 Indonesian</option>
-              <option value="us">🇺🇸 US Format</option>
-              <option value="eu">🇪🇺 EU Format</option>
-              <option value="iso">📅 ISO Format</option>
-            </select>
-          </div>
-        </div>
-
-        <InputField 
-          label="Location" 
-          name="location" 
-          required 
-          placeholder="City or location"
-          touched={touched}
-          validationErrors={validationErrors}
-          invoiceData={invoiceData}
-          handleChange={handleChange}
-          handleBlur={handleBlur}
-        />
-      </Card>
-
       {/* Amount & Payment */}
-      <Card title="💰 Amount & Payment" section="amount" toggleSection={toggleSection} expanded={expandedSections.amount}>
+      <Card
+        title={
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-10v10" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6" />
+            </svg>
+            <span>Amount & Payment</span>
+          </div>
+        }
+        section="amount"
+        toggleSection={toggleSection}
+        expanded={expandedSections.amount}
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-gray-700">
@@ -338,13 +438,13 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
               name="currency"
               value={invoiceData?.currency || 'Rp'}
               onChange={handleCurrencyChange}
-              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all text-base"
+                className="w-full px-3 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-slate-500 transition-all text-base"
             >
-              <option value="Rp">🇮🇩 Rp (Rupiah)</option>
-              <option value="IDR">🇮🇩 IDR</option>
-              <option value="USD">🇺🇸 USD</option>
-              <option value="EUR">🇪🇺 EUR</option>
-              <option value="GBP">🇬🇧 GBP</option>
+                <option value="Rp">Rp (Rupiah)</option>
+                <option value="IDR">IDR</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
             </select>
           </div>
 
@@ -359,7 +459,7 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
               onChange={handleAmountChange}
               onBlur={() => handleBlur('amountNumber')}
               placeholder="14.900.000"
-              className={`w-full px-3 py-2.5 rounded-lg border transition-all focus:ring-2 focus:ring-blue-500 font-mono text-lg ${
+                className={`w-full px-3 py-2.5 rounded-lg border transition-all focus:ring-2 focus:ring-slate-500 font-mono text-lg ${
                 touched.amountNumber && hasFieldError(validationErrors, 'amountNumber')
                   ? 'border-red-300 bg-red-50'
                   : 'border-gray-300'
@@ -372,11 +472,11 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
         </div>
 
         {/* Auto-generated amount in words */}
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
-          <label className="block text-xs font-medium text-blue-900 mb-2">
-            ✨ Amount in Words (Auto-generated)
+        <div className="bg-gradient-to-br text-center from-slate-50 to-slate-100 rounded-lg p-2 border border-slate-200">
+          <label className="text-xs font-medium text-slate-900 gap-2">
+            <span>Amount in Words (Auto-generated)</span>
           </label>
-          <p className="text-sm text-blue-800 font-medium italic">
+          <p className="text-sm text-slate-800 font-medium italic">
             {invoiceData?.amountWords || 'Enter an amount to see it in words...'}
           </p>
         </div>
@@ -395,7 +495,19 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
       </Card>
 
       {/* Footer & Signature */}
-      <Card title="✍️ Signature & Instructions" section="additional" toggleSection={toggleSection} expanded={expandedSections.additional}>
+      <Card
+        title={
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7l4 4m0 0l-4 4m4-4H8" />
+            </svg>
+            <span>Signature & Instructions</span>
+          </div>
+        }
+        section="additional"
+        toggleSection={toggleSection}
+        expanded={expandedSections.additional}
+      >
         <InputField 
           label="Signer Name" 
           name="signerName" 
@@ -427,7 +539,7 @@ function InvoiceFormModern({ invoiceData, onChange, validationErrors }) {
             onChange={handleChange}
             rows="3"
             placeholder="Bank transfer details, payment terms, etc."
-            className="w-full px-3 py-2.5 rounded-lg border border-gray-300 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none text-base"
+              className="w-full px-3 py-2.5 rounded-lg border border-gray-300 hover:border-gray-400 focus:ring-2 focus:ring-slate-500 focus:border-transparent transition-all resize-none text-base"
           />
         </div>
       </Card>
