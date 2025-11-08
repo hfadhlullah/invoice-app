@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import InvoiceFormModern from './components/InvoiceFormModern';
+import InvoiceForm from './components/InvoiceForm';
 import InvoicePreview from './components/InvoicePreview';
 import InvoiceList from './components/InvoiceList';
 import LoginPage from './components/LoginPage';
@@ -8,7 +8,6 @@ import { getLastInvoiceNumber, getAllInvoices } from './utils/invoiceStorage';
 import { InvoiceService } from './firebase/invoiceService';
 import { AuthService } from './firebase/authService';
 import { generateNextInvoiceNumber } from './utils/invoiceNumber';
-// moved styles into src/index.css
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -17,6 +16,7 @@ function App() {
   const [currentInvoiceId, setCurrentInvoiceId] = useState(null);
   const [showInvoiceList, setShowInvoiceList] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
+  const [printModalOpen, setPrintModalOpen] = useState(false);
   
   // Use regular useState instead of useLocalStorage to avoid re-renders on every keystroke
   const [invoiceData, setInvoiceData] = useState({
@@ -72,6 +72,16 @@ function App() {
     window.addEventListener('closeInvoiceList', handleCloseInvoiceList);
     return () => window.removeEventListener('closeInvoiceList', handleCloseInvoiceList);
   }, []);
+
+  // Close print modal on Escape
+  useEffect(() => {
+    if (!printModalOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setPrintModalOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [printModalOpen]);
 
   // Handle save invoice
   const handleSaveInvoice = async () => {
@@ -283,9 +293,9 @@ function App() {
               )}
             </div>
             
-            {/* Print Button */}
+            {/* Print Button (opens confirmation modal) */}
             <button 
-              onClick={() => window.print()}
+              onClick={() => setPrintModalOpen(true)}
               disabled={Object.keys(validationErrors).length > 0}
               className="px-3 sm:px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
             >
@@ -340,7 +350,7 @@ function App() {
           <div className={`${showInvoiceList ? 'xl:col-span-5' : 'xl:col-span-6'} grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6`}>
             {/* Left Column - Form */}
             <div className="h-full overflow-y-auto custom-scrollbar order-2 lg:order-1">
-              <InvoiceFormModern
+              <InvoiceForm
                 key={currentInvoiceId || 'new'}
                 invoiceData={invoiceData}
                 onChange={setInvoiceData}
@@ -359,6 +369,30 @@ function App() {
           </div>
         </div>
       </main>
+
+      {/* Print confirmation modal (hidden in print via .no-print) */}
+      {printModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 no-print" role="dialog" aria-modal="true">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 mx-4">
+            <h2 className="text-lg font-semibold mb-2">Print invoice</h2>
+            <p className="text-sm text-gray-700 mb-4">If you are on mobile, please rotate your phone to landscape before printing for best results. Then tap "Print" below.</p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setPrintModalOpen(false)}
+                className="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { setPrintModalOpen(false); setTimeout(() => window.print(), 60); }}
+                className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Print
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
     </>
