@@ -36,5 +36,8 @@ firestore-debug.log
 *.njsproj
 *.sln
 *.sw?
+FIREBASE_AUTH_SETUP.md
+FIREBASE_INTEGRATION.md
+QUICKSTART.md
 
 .vercel
