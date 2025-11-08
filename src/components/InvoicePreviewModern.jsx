@@ -1,4 +1,4 @@
-import { formatDate } from '../utils/dateFormatter';
+import { formatDate } from '../utils';
 
 function InvoicePreviewModern({ data }) {
   const formattedDate = formatDate(data.date, data.dateFormat || 'id');
@@ -10,10 +10,8 @@ function InvoicePreviewModern({ data }) {
         <div className="flex justify-between items-start">
           {/* Logo */}
           <div className="w-24 h-24 bg-white rounded-lg shadow-lg flex items-center justify-center p-2">
-            {data.logoUrl ? (
+            {data.logoUrl && (
               <img src={data.logoUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
-            ) : (
-              <div className="text-4xl">🏢</div>
             )}
           </div>
           
@@ -33,10 +31,8 @@ function InvoicePreviewModern({ data }) {
 
           {/* Certificate Badge */}
           <div className="w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center">
-            {data.certUrl ? (
+            {data.certUrl && (
               <img src={data.certUrl} alt="Certificate" className="w-16 h-16 object-contain rounded-full" />
-            ) : (
-              <div className="text-3xl">🏆</div>
             )}
           </div>
         </div>

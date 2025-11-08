@@ -2,13 +2,18 @@ import { useState, useEffect } from 'react';
 import InvoiceFormModern from './components/InvoiceFormModern';
 import InvoicePreview from './components/InvoicePreview';
 import InvoiceList from './components/InvoiceList';
+import LoginPage from './components/LoginPage';
 import { validateInvoiceData } from './utils/validation';
 import { getLastInvoiceNumber, getAllInvoices } from './utils/invoiceStorage';
 import { InvoiceService } from './firebase/invoiceService';
+import { AuthService } from './firebase/authService';
 import { generateNextInvoiceNumber } from './utils/invoiceNumber';
 import './App.css';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
   const [currentInvoiceId, setCurrentInvoiceId] = useState(null);
   const [showInvoiceList, setShowInvoiceList] = useState(false);
   const [saveStatus, setSaveStatus] = useState('');
@@ -36,6 +41,22 @@ function App() {
   });
 
   const [validationErrors, setValidationErrors] = useState({});
+
+  // Auth state listener
+  useEffect(() => {
+    const unsubscribe = AuthService.onAuthStateChange((user) => {
+      if (user) {
+        setIsAuthenticated(true);
+        setCurrentUser(user);
+      } else {
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+      }
+      setAuthLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const { errors } = validateInvoiceData(invoiceData);
@@ -142,8 +163,37 @@ function App() {
     setShowInvoiceList(false);
   };
 
+  // Handle logout
+  const handleLogout = async () => {
+    await AuthService.logout();
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+  };
+
+  // Show loading screen while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login page if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <>
+        <LoginPage onLoginSuccess={() => setIsAuthenticated(true)} />
+      </>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 print:hidden">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
@@ -243,6 +293,18 @@ function App() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
               </svg>
               <span className="hidden sm:inline">Print</span>
+            </button>
+
+            {/* Logout Button */}
+            <button 
+              onClick={handleLogout}
+              className="px-3 sm:px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
+              title={`Logout (${currentUser?.email})`}
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              <span className="hidden sm:inline">Logout</span>
             </button>
           </div>
         </div>
@@ -384,6 +446,7 @@ function App() {
       `}</style>
 
     </div>
+    </>
   );
 }
 

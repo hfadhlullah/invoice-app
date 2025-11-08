@@ -12,12 +12,8 @@ function InvoicePreview({ invoiceData }) {
         <div className="flex flex-col sm:flex-row justify-between items-center sm:items-start mb-2 gap-4 sm:gap-0">
           {/* Logo left */}
           <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 flex items-center justify-center">
-            {data.logoUrl ? (
+            {data.logoUrl && (
               <img src={data.logoUrl} alt="Logo" className="max-w-full max-h-full object-contain" />
-            ) : (
-              <div className="w-full h-full bg-gray-100 border border-gray-300 flex items-center justify-center text-xs text-gray-500 print:bg-transparent print:border-gray-400">
-                Logo
-              </div>
             )}
           </div>
           
@@ -30,12 +26,8 @@ function InvoicePreview({ invoiceData }) {
           
           {/* Certifications right */}
           <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 flex items-center justify-center">
-            {data.certUrl ? (
+            {data.certUrl && (
               <img src={data.certUrl} alt="Certificate" className="max-w-full max-h-full object-contain" />
-            ) : (
-              <div className="w-full h-full bg-gray-100 border border-gray-300 flex items-center justify-center text-xs text-gray-500 print:bg-transparent print:border-gray-400">
-                Cert
-              </div>
             )}
           </div>
         </div>
