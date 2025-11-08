@@ -8,7 +8,7 @@ import { getLastInvoiceNumber, getAllInvoices } from './utils/invoiceStorage';
 import { InvoiceService } from './firebase/invoiceService';
 import { AuthService } from './firebase/authService';
 import { generateNextInvoiceNumber } from './utils/invoiceNumber';
-import './App.css';
+// moved styles into src/index.css
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -357,94 +357,6 @@ function App() {
           </div>
         </div>
       </main>
-
-      <style jsx>{`
-        @media print {
-          /* Hide app header completely */
-          header {
-            display: none !important;
-          }
-          
-          /* Reset body and main */
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-          
-          main {
-            max-width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            height: auto !important;
-          }
-          
-          /* Hide form column and invoice list */
-          .xl\\:col-span-1,
-          .order-2 {
-            display: none !important;
-          }
-          
-          /* Show preview column full width */
-          .order-1 {
-            width: 100% !important;
-            max-width: 100% !important;
-            overflow: visible !important;
-            padding: 0 !important;
-            order: 1 !important;
-          }
-          
-          /* Remove wrapper styling */
-          .order-1 > div,
-          .order-1 > div > div {
-            position: static !important;
-            background: white !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
-            min-height: auto !important;
-            width: 100% !important;
-            max-width: 100% !important;
-          }
-          
-          /* Ensure invoice content is visible */
-          .invoice-page {
-            width: 100% !important;
-            max-width: 100% !important;
-            padding: 12mm !important;
-            margin: 0 !important;
-            box-shadow: none !important;
-          }
-        }
-        
-        @page {
-          size: A4;
-          margin: 0;
-        }
-        
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-        
-        /* Mobile specific styles */
-        @media (max-width: 768px) {
-          .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-          }
-        }
-      `}</style>
-
     </div>
     </>
   );

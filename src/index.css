@@ -1,29 +1,168 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/*
+  Consolidated global styles
+  - Tailwind directives above
+  - Global app styles and accessibility tweaks from former App.css
+  - Print rules and preview-specific rules moved from App.jsx inline styles
+*/
 
-@media print {
-  @page {
-    size: A4;
-    margin: 0;
+/* Global layout tweaks */
+#root {
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Ensure proper touch targets on mobile */
+@media (max-width: 768px) {
+  button, a, input[type="checkbox"], input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
   }
   
+  /* Prevent zoom on form inputs on iOS */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="search"],
+  input[type="time"],
+  input[type="week"],
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Improved focus states for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Global scrollbar styles (fallback) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+}
+
+/* Utility class used in App for custom scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Logo interactions used in example app */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* ================= PRINT / PRINT PREVIEW RULES ================= */
+@media print {
+  /* Page sizing for printing */
+  @page {
+    size: A4;
+    margin: 0.5in;
+  }
+
+  /* Global print resets */
   body {
     margin: 0 !important;
     padding: 0 !important;
+    background: white !important;
   }
-  
+
+  /* Hide the app header completely while printing */
+  header {
+    display: none !important;
+  }
+
+  /* Reset main container for print */
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+  }
+
   .no-print {
     display: none !important;
   }
-  
+
   /* Remove all shadows and backgrounds when printing */
   * {
-    header: none !important;
     box-shadow: none !important;
     -webkit-box-shadow: none !important;
   }
-  
+
   /* Make print container fill the page properly */
   .print-container {
     margin: 10 !important;
@@ -31,10 +170,44 @@
     background: white !important;
     min-height: 100vh !important;
   }
-  
-  .invoice-page {
-    box-shadow: none !important;
+
+  /* Hide form column and invoice list (they're not part of the printed preview) */
+  .xl\:col-span-1,
+  .order-2 {
+    display: none !important;
+  }
+
+  /* Show preview column full width */
+  .order-1 {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    order: 1 !important;
+  }
+
+  /* Remove wrapper styling applied to the preview column so printed invoice fills the page */
+  .order-1 > div,
+  .order-1 > div > div {
+    position: static !important;
+    background: white !important;
+    padding: 0 !important;
     margin: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    min-height: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Ensure invoice content is visible and full width for printing */
+  .invoice-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 12mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
     page-break-after: avoid;
   }
 }
+
