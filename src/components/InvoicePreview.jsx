@@ -4,7 +4,6 @@ function InvoicePreview({ invoiceData }) {
   // Provide default empty object if invoiceData is undefined
   const data = invoiceData || {};
   const formattedDate = formatDate(data.date, data.dateFormat || 'id');
-  
   return (
     <div className="invoice-page w-full px-4 sm:px-8 lg:px-12 py-4 sm:py-6 lg:py-8 bg-white text-gray-900">
       {/* Header with logo, company name, and certifications */}

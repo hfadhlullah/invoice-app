@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import InvoiceForm from './components/InvoiceForm';
 import InvoicePreview from './components/InvoicePreview';
 import InvoiceList from './components/InvoiceList';
+import Header from './components/Header';
 import LoginPage from './components/LoginPage';
 import { validateInvoiceData } from './utils/validation';
 import { getLastInvoiceNumber, getAllInvoices } from './utils/invoiceStorage';
@@ -15,6 +16,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentInvoiceId, setCurrentInvoiceId] = useState(null);
   const [showInvoiceList, setShowInvoiceList] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const [saveStatus, setSaveStatus] = useState('');
   const [printModalOpen, setPrintModalOpen] = useState(false);
   
@@ -67,6 +69,7 @@ function App() {
   useEffect(() => {
     const handleCloseInvoiceList = () => {
       setShowInvoiceList(false);
+      setShowPreview(true);
     };
     
     window.addEventListener('closeInvoiceList', handleCloseInvoiceList);
@@ -109,6 +112,7 @@ function App() {
     setCurrentInvoiceId(invoice.id);
     setInvoiceData(invoice);
     setShowInvoiceList(false);
+    setShowPreview(true);
   };
 
   // Handle new invoice
@@ -171,6 +175,7 @@ function App() {
     }
     
     setShowInvoiceList(false);
+    setShowPreview(true);
   };
 
   // Handle logout
@@ -204,139 +209,37 @@ function App() {
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 print:hidden">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900">Invoice Generator</h1>
-              <p className="text-xs sm:text-sm text-gray-500 text-left">
-                Invoice: <span className="font-medium text-gray-700">{invoiceData.invoiceNumber || null}</span>
-                {currentInvoiceId && <span className="ml-2 text-xs text-blue-600">(Saved)</span>}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
-            {/* Saved Invoices Button */}
-            <button
-              onClick={() => setShowInvoiceList(!showInvoiceList)}
-              className="px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
-            >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-              </svg>
-              <span className="hidden sm:inline">Invoices</span>
-            </button>
-
-            {/* Save Button */}
-            <button
-              onClick={handleSaveInvoice}
-              disabled={Object.keys(validationErrors).length > 0 || saveStatus === 'saving'}
-              className="px-3 sm:px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
-            >
-              {saveStatus === 'saving' ? (
-                <>
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span className="hidden sm:inline">Saving...</span>
-                </>
-              ) : saveStatus === 'saved' ? (
-                <>
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span className="hidden sm:inline">Saved!</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                  </svg>
-                  <span className="hidden sm:inline">{currentInvoiceId ? 'Update' : 'Save'}</span>
-                </>
-              )}
-            </button>
-
-            {/* New Invoice Button */}
-            {currentInvoiceId && (
-              <button
-                onClick={handleNewInvoice}
-                className="px-3 sm:px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <span className="hidden sm:inline">New</span>
-              </button>
-            )}
-            
-            {/* Auto-save Status */}
-            <div className="hidden md:flex items-center gap-2 text-sm">
-              {Object.keys(validationErrors).length === 0 ? (
-                <>
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                  <span className="text-green-600 font-medium">Ready</span>
-                </>
-              ) : (
-                <>
-                  <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
-                  <span className="text-yellow-600 font-medium">Incomplete</span>
-                </>
-              )}
-            </div>
-            
-            {/* Print Button (opens confirmation modal) */}
-            <button 
-              onClick={() => setPrintModalOpen(true)}
-              disabled={Object.keys(validationErrors).length > 0}
-              className="px-3 sm:px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
-            >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-              <span className="hidden sm:inline">Print</span>
-            </button>
-
-            {/* Logout Button */}
-            <button 
-              onClick={handleLogout}
-              className="px-3 sm:px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors flex items-center gap-1 sm:gap-2 text-sm sm:text-base"
-              title={`Logout (${currentUser?.email})`}
-            >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header
+        onToggleInvoices={() => {
+          if (!showInvoiceList) {
+            setShowInvoiceList(true);
+            setShowPreview(false);
+          } else {
+            setShowInvoiceList(false);
+            setShowPreview(true);
+          }
+        }}
+        onLogout={handleLogout}
+        currentUser={currentUser}
+      />
 
       {/* Main Content - Split View */}
             {/* Main Content */}
-      <main className="flex-1 max-w-[1920px] mx-auto w-full p-3 sm:p-6">
+  <main className="flex-1 max-w-[1920px] mx-auto w-full p-3 sm:p-6 pb-20 lg:pb-0">
         <div className="grid grid-cols-1 xl:grid-cols-6 gap-3 sm:gap-6 h-full">
           {/* Invoice List Sidebar (Collapsible) - Mobile overlay */}
           {showInvoiceList && (
-            <div className={`
-              ${showInvoiceList ? 'xl:col-span-1' : ''} 
+              <div className={`
+              ${showInvoiceList ? 'xl:col-span-2' : ''} 
               h-full overflow-hidden rounded-xl shadow-lg border border-gray-200
               xl:relative fixed inset-0 xl:inset-auto z-50 xl:z-auto
-              bg-white xl:bg-transparent
+              bg-white xl:bg-transparent print:hidden
             `}>
               {/* Mobile overlay background */}
-              <div className="xl:hidden absolute inset-0 bg-black bg-opacity-50" onClick={() => setShowInvoiceList(false)}></div>
+              <div className="xl:hidden absolute inset-0 bg-black bg-opacity-50" onClick={() => { setShowInvoiceList(false); setShowPreview(true); }}></div>
               
               {/* Invoice list content */}
-              <div className="relative h-full w-80 xl:w-full bg-white xl:bg-transparent rounded-xl xl:rounded-none">
+              <div className="relative h-full w-96 xl:w-full bg-white xl:bg-transparent rounded-xl xl:rounded-none">
                 <InvoiceList
                   onSelectInvoice={handleSelectInvoice}
                   onNewInvoice={handleNewInvoice}
@@ -347,7 +250,7 @@ function App() {
           )}
 
           {/* Form and Preview Layout */}
-          <div className={`${showInvoiceList ? 'xl:col-span-5' : 'xl:col-span-6'} grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6`}>
+          <div className={`${showInvoiceList ? 'xl:col-span-4' : 'xl:col-span-6'} grid grid-cols-1 ${showPreview ? 'lg:grid-cols-2' : 'lg:grid-cols-1'} gap-3 sm:gap-6`}>
             {/* Left Column - Form */}
             <div className="h-full overflow-y-auto custom-scrollbar order-2 lg:order-1">
               <InvoiceForm
@@ -357,15 +260,110 @@ function App() {
                 validationErrors={validationErrors}
               />
             </div>
-
+            
             {/* Right Column - Preview */}
-            <div className="order-1 lg:order-2">
-              <div className="sticky top-4 bg-gray-100 rounded-xl shadow-2xl
-                              p-3 sm:p-8 overflow-y-auto custom-scrollbar
-                              max-h-screen">
-                <InvoicePreview invoiceData={invoiceData} />
-              </div>
-            </div>
+            {showPreview && (
+              <>
+                <div className="order-1 lg:order-2 hidden lg:block print:block">
+                  {/* Action toolbar positioned on top of the preview (outside InvoicePreview) */}
+                  <div className="top-3 right-3 z-20 print:hidden flex items-center justify-end gap-2 pb-4">
+                    <button
+                      onClick={handleSaveInvoice}
+                      disabled={Object.keys(validationErrors).length > 0 || saveStatus === 'saving'}
+                      className="px-3 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 disabled:bg-slate-400 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+                    >
+                      {saveStatus === 'saving' ? (
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : saveStatus === 'saved' ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                        </svg>
+                      )}
+                      <span className="ml-1 hidden sm:inline">{currentInvoiceId ? 'Update' : 'Save'}</span>
+                    </button>
+
+                    {currentInvoiceId && (
+                      <button
+                        onClick={handleNewInvoice}
+                        className="px-3 py-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 text-sm"
+                      >
+                        New
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => setPrintModalOpen(true)}
+                      disabled={Object.keys(validationErrors).length > 0}
+                      className="px-3 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-sm"
+                    >
+                      Print
+                    </button>
+                  </div>
+
+                  <div className="sticky top-4 bg-slate-100 rounded-xl shadow-2xl p-3 sm:p-8 overflow-y-auto custom-scrollbar max-h-screen">
+                    <InvoicePreview invoiceData={invoiceData} />
+                  </div>
+                </div>
+
+                {/* Mobile floating bottom action bar */}
+                <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 print:hidden bg-white/80 backdrop-blur-sm border-t border-slate-200 px-3 py-2">
+                  <div className="max-w-[900px] mx-auto flex items-center justify-between">
+                    <button
+                      onClick={handleSaveInvoice}
+                      disabled={Object.keys(validationErrors).length > 0 || saveStatus === 'saving'}
+                      className="flex-1 mx-1 px-3 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800 disabled:bg-slate-400 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
+                      aria-label="Save invoice"
+                    >
+                      {saveStatus === 'saving' ? (
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : saveStatus === 'saved' ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                        </svg>
+                      )}
+                      <span className="ml-2 text-sm">{currentInvoiceId ? 'Update' : 'Save'}</span>
+                    </button>
+
+                    <div className="mx-1">
+                      {currentInvoiceId && (
+                        <button
+                          onClick={handleNewInvoice}
+                          className="px-3 py-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 text-sm"
+                          aria-label="New invoice"
+                        >
+                          New
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="mx-1">
+                      <button
+                        onClick={() => setPrintModalOpen(true)}
+                        disabled={Object.keys(validationErrors).length > 0}
+                        className="px-3 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-sm"
+                        aria-label="Print invoice"
+                      >
+                        Print
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </main>
@@ -379,13 +377,13 @@ function App() {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setPrintModalOpen(false)}
-                className="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+                className="px-3 py-2 bg-slate-200 rounded-lg hover:bg-slate-300"
               >
                 Cancel
               </button>
               <button
                 onClick={() => { setPrintModalOpen(false); setTimeout(() => window.print(), 60); }}
-                className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-3 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
               >
                 Print
               </button>

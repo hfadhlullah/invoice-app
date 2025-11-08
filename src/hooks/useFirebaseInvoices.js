@@ -4,6 +4,7 @@ import { InvoiceService } from '../firebase/invoiceService.js';
 
 export const useFirebaseInvoices = () => {
   const [invoices, setInvoices] = useState([]);
+  const [cachedInvoices, setCachedInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -13,6 +14,7 @@ export const useFirebaseInvoices = () => {
       setLoading(true);
       setError(null);
       const fetchedInvoices = await InvoiceService.getAllInvoices();
+      setCachedInvoices(fetchedInvoices);
       setInvoices(fetchedInvoices);
     } catch (err) {
       setError(err.message);
@@ -27,6 +29,7 @@ export const useFirebaseInvoices = () => {
     try {
       setError(null);
       const newInvoice = await InvoiceService.createInvoice(invoiceData);
+      setCachedInvoices(prev => [newInvoice, ...prev]);
       setInvoices(prev => [newInvoice, ...prev]);
       return newInvoice;
     } catch (err) {
@@ -40,6 +43,7 @@ export const useFirebaseInvoices = () => {
     try {
       setError(null);
       const updatedInvoice = await InvoiceService.updateInvoice(id, invoiceData);
+      setCachedInvoices(prev => prev.map(inv => inv.id === id ? updatedInvoice : inv));
       setInvoices(prev => 
         prev.map(invoice => 
           invoice.id === id ? updatedInvoice : invoice
@@ -57,6 +61,7 @@ export const useFirebaseInvoices = () => {
     try {
       setError(null);
       await InvoiceService.deleteInvoice(id);
+      setCachedInvoices(prev => prev.filter(invoice => invoice.id !== id));
       setInvoices(prev => prev.filter(invoice => invoice.id !== id));
     } catch (err) {
       setError(err.message);
@@ -68,13 +73,27 @@ export const useFirebaseInvoices = () => {
   const searchInvoices = async (searchTerm) => {
     try {
       setError(null);
-      if (!searchTerm.trim()) {
-        await loadInvoices();
+      const term = (searchTerm || '').trim().toLowerCase();
+
+      if (!term) {
+        // restore full cached list
+        setInvoices(cachedInvoices);
         return;
       }
-      
-      const searchResults = await InvoiceService.searchInvoices(searchTerm);
-      setInvoices(searchResults);
+
+      // Filter cached invoices client-side for responsiveness and to avoid extra reads.
+      const filtered = cachedInvoices.filter(inv => {
+        const invoiceNumber = (inv.invoiceNumber || '').toString().toLowerCase();
+        if (invoiceNumber.startsWith(term)) return true; // prefix match for numbers
+
+        const nameFields = [inv.customerName, inv.clientName, inv.invoiceTo]
+          .filter(Boolean)
+          .map(s => s.toString().toLowerCase());
+
+        return nameFields.some(name => name.includes(term)); // substring match
+      });
+
+      setInvoices(filtered);
     } catch (err) {
       setError(err.message);
       console.error('Error searching invoices:', err);
