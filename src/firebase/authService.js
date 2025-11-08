@@ -5,8 +5,8 @@ export const AuthService = {
   // Login with email and password
   async login(email, password) {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('✅ Login successful:', userCredential.user.email);
+  const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  if (import.meta.env.DEV) console.log('✅ Login successful:', userCredential.user.email);
       return { success: true, user: userCredential.user };
     } catch (error) {
       console.error('❌ Login error:', error.message);
@@ -17,8 +17,8 @@ export const AuthService = {
   // Logout
   async logout() {
     try {
-      await signOut(auth);
-      console.log('✅ Logout successful');
+  await signOut(auth);
+  if (import.meta.env.DEV) console.log('✅ Logout successful');
       return { success: true };
     } catch (error) {
       console.error('❌ Logout error:', error.message);

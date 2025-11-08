@@ -44,19 +44,19 @@ function InvoicePreview({ invoiceData }) {
         </div>
 
         {/* Receipt details */}
-        <div className="space-y-3 mb-8 sm:mb-12">
+        <div className="space-y-3 mb-8 sm:mb-12 text-left">
           <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-0">
-            <div className="w-full sm:w-40 lg:w-48 text-sm sm:text-base text-blue-800 font-medium sm:font-normal">Sudah Terima Dari</div>
+            <div className="w-full sm:w-40 lg:w-48 text-sm sm:text-base font-medium sm:font-normal">Sudah Terima Dari</div>
             <div className="flex-1 border-b border-gray-400 text-sm sm:text-base text-left pb-1 break-words">{data.customerName}</div>
           </div>
           
           <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-0">
-            <div className="w-full sm:w-40 lg:w-48 text-sm sm:text-base text-blue-800 font-medium sm:font-normal">Banyaknya Uang</div>
+            <div className="w-full sm:w-40 lg:w-48 text-sm sm:text-base font-medium sm:font-normal">Banyaknya Uang</div>
             <div className="flex-1 border-b border-gray-400 text-sm sm:text-base text-left pb-1 break-words">{data.amountWords}</div>
           </div>
           
           <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-0">
-            <div className="w-full sm:w-40 lg:w-48 text-sm sm:text-base text-blue-800 font-medium sm:font-normal">Untuk Pembayaran</div>
+            <div className="w-full sm:w-40 lg:w-48 text-sm sm:text-base font-medium sm:font-normal">Untuk Pembayaran</div>
             <div className="flex-1 text-sm sm:text-base text-left break-words">{data.description}</div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-0">
@@ -74,10 +74,10 @@ function InvoicePreview({ invoiceData }) {
 
           {/* Signature block right */}
           <div className="text-left sm:text-right w-full sm:w-auto">
-            <div className="text-sm sm:text-base mb-1 break-words">{data.location}, {formattedDate}</div>
+            <div className="text-sm sm:text-base break-words">{data.location}, {formattedDate}</div>
             <div className="text-sm sm:text-base">Hormat Kami,</div>
-            <div className="text-sm sm:text-base font-semibold break-words">{data.companyName}</div>
-            <div className="text-sm sm:text-base mb-16 sm:mb-28 break-words">Kantor {data.location}</div>
+            <div className="text-sm sm:text-base font-semibold mb-28 break-words">{data.companyName}</div>
+            {/* <div className="text-sm sm:text-base sm:mb-28 break-words">{data.location}</div> */}
             
             {/* Stamp placeholder */}
             {/* <div className="w-32 h-32 rounded-full border-4 border-red-600 flex items-center justify-center mb-2 mx-auto">
@@ -94,10 +94,10 @@ function InvoicePreview({ invoiceData }) {
         </div>
 
         {/* Payment instructions at bottom */}
-        <div className="mt-8 sm:mt-12 text-sm text-gray-700 italic">
+        {/* <div className="mt-8 sm:mt-12 text-sm text-gray-700 italic">
           <div className="font-semibold">Instruksi Pembayaran:</div>
           <div className="break-words">{data.paymentInstructions}</div>
-        </div>
+        </div> */}
     </div>
   );
 }

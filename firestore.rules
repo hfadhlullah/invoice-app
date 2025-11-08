@@ -1,18 +1,35 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper predicates
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner() {
+      // resource is only defined for reads/updates/deletes
+      return isSignedIn() && resource.data.ownerUid == request.auth.uid;
+    }
+
+    function isCreatingOwner() {
+      // When creating a document, request.resource contains the incoming document
+      return isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (request.auth.token.admin == true || request.auth.token.role == 'admin');
+    }
+
     // Invoices collection rules
-    match /invoices/{document} {
-      // Allow read and write access to all users (you may want to restrict this based on authentication)
-      allow read, write: if true;
-      
-      // If you want to implement authentication later, use:
-      // allow read, write: if request.auth != null;
-      
-      // More restrictive rules for production:
-      // allow read: if request.auth != null;
-      // allow create: if request.auth != null && request.auth.uid == resource.data.userId;
-      // allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    match /invoices/{invoiceId} {
+      // Allow owners to create their invoices (ownerUid must be set to the authenticated uid)
+      allow create: if isCreatingOwner() || isAdmin();
+
+      // Allow reads only to the owner or admin. For list queries, client should filter by ownerUid == request.auth.uid
+      allow get, list: if (isOwner() || isAdmin());
+
+      // Allow update/delete only to the owner or admin
+      allow update, delete: if (isOwner() || isAdmin());
     }
   }
 }
