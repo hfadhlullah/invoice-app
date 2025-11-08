@@ -349,14 +349,17 @@ function App() {
             </div>
 
             {/* Right Column - Preview */}
-            <div className="h-full order-1 lg:order-2">
-              <div className="sticky top-0 h-full bg-gray-100 rounded-xl shadow-2xl p-3 sm:p-8 overflow-y-auto custom-scrollbar min-h-[600px] sm:min-h-[800px]">
+            <div className="order-1 lg:order-2">
+              <div className="sticky top-4 bg-gray-100 rounded-xl shadow-2xl
+                              p-3 sm:p-8 overflow-y-auto custom-scrollbar
+                              max-h-screen">
                 <InvoicePreview invoiceData={invoiceData} />
               </div>
             </div>
           </div>
         </div>
       </main>
+
     </div>
     </>
   );
